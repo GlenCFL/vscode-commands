@@ -1,0 +1,71 @@
+{
+  "name": "glencfl-vscode-commands",
+  "displayName": "GlenCFL's VSCode Commands",
+  "description": "Extra commands for VSCode that I personally find useful.",
+  "version": "1.0.0",
+  "publisher": "GlenCFL",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GlenCFL/vscode-commands.git"
+  },
+  "engines": {
+    "vscode": "^1.41.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:glencfl.copyToEndOfLine",
+    "onCommand:glencfl.cutToEndOfLine"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "glencfl.cutToEndOfLine",
+          "when": "!editorReadonly"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "glencfl.copyToEndOfLine",
+        "title": "Copy to End of Line"
+      },
+      {
+        "command": "glencfl.cutToEndOfLine",
+        "title": "Cut to End of Line",
+        "enablement": "!editorReadonly"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "glencfl.copyToEndOfLine",
+        "key": "Ctrl+L",
+        "when": "textInputFocus"
+      },
+      {
+        "command": "glencfl.cutToEndOfLine",
+        "key": "Ctrl+W",
+        "when": "textInputFocus"
+      }
+    ]
+  },
+  "scripts": {
+    "clean": "node tasks/clean",
+    "build": "tsc",
+    "build:release": "tsc --sourceMap false",
+    "watch": "tsc --watch",
+    "zip": "vsce package",
+    "package": "run-s clean build:release zip"
+  },
+  "devDependencies": {
+    "@types/vscode": "1.41",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.0",
+    "typescript": "^3.7.4",
+    "vsce": "^1.71.0"
+  }
+}

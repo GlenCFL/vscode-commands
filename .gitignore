@@ -1,0 +1,6 @@
+/node_modules/
+/out/
+/yarn-error.log
+/*.vsix
+/.vscode-test/**
+/coverage/**

@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "extensionHost",
+      "name": "Debug Extension",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}"
+      ],
+      "stopOnEntry": false,
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js"
+      ]
+    }
+  ]
+}

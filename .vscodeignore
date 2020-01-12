@@ -1,0 +1,12 @@
+.vscode/**
+.vscode-test/**
+coverage/**
+out/tests/**
+src/**
+tasks/**
+tests/**
+.gitignore
+package-lock.json
+tsconfig.json
+yarn-error.log
+yarn-lock
