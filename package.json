@@ -2,7 +2,7 @@
   "name": "glencfl-vscode-commands",
   "displayName": "GlenCFL's VSCode Commands",
   "description": "Extra commands for VSCode that I personally find useful.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publisher": "GlenCFL",
   "license": "MIT",
   "repository": {
@@ -17,7 +17,9 @@
   ],
   "activationEvents": [
     "onCommand:glencfl.copyAllRight",
-    "onCommand:glencfl.cutAllRight"
+    "onCommand:glencfl.cutAllRight",
+    "onCommand:glencfl.copyLine",
+    "onCommand:glencfl.cutLine"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -25,6 +27,10 @@
       "commandPalette": [
         {
           "command": "glencfl.cutAllRight",
+          "when": "!editorReadonly"
+        },
+        {
+          "command": "glencfl.cutLine",
           "when": "!editorReadonly"
         }
       ]
@@ -38,17 +44,35 @@
         "command": "glencfl.cutAllRight",
         "title": "Cut All Right",
         "enablement": "!editorReadonly"
+      },
+      {
+        "command": "glencfl.copyLine",
+        "title": "Copy Line"
+      },
+      {
+        "command": "glencfl.cutLine",
+        "title": "Cut Line"
       }
     ],
     "keybindings": [
       {
         "command": "glencfl.copyAllRight",
-        "key": "Ctrl+L",
+        "key": "Ctrl+J",
         "when": "textInputFocus"
       },
       {
         "command": "glencfl.cutAllRight",
-        "key": "Ctrl+W",
+        "key": "Ctrl+K",
+        "when": "textInputFocus"
+      },
+      {
+        "command": "glencfl.copyLine",
+        "key": "Ctrl+;",
+        "when": "textInputFocus"
+      },
+      {
+        "command": "glencfl.cutLine",
+        "key": "Ctrl+'",
         "when": "textInputFocus"
       }
     ]
