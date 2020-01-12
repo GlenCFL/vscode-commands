@@ -16,38 +16,38 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:glencfl.copyToEndOfLine",
-    "onCommand:glencfl.cutToEndOfLine"
+    "onCommand:glencfl.copyAllRight",
+    "onCommand:glencfl.cutAllRight"
   ],
   "main": "./out/src/extension",
   "contributes": {
     "menus": {
       "commandPalette": [
         {
-          "command": "glencfl.cutToEndOfLine",
+          "command": "glencfl.cutAllRight",
           "when": "!editorReadonly"
         }
       ]
     },
     "commands": [
       {
-        "command": "glencfl.copyToEndOfLine",
-        "title": "Copy to End of Line"
+        "command": "glencfl.copyAllRight",
+        "title": "Copy All Right"
       },
       {
-        "command": "glencfl.cutToEndOfLine",
-        "title": "Cut to End of Line",
+        "command": "glencfl.cutAllRight",
+        "title": "Cut All Right",
         "enablement": "!editorReadonly"
       }
     ],
     "keybindings": [
       {
-        "command": "glencfl.copyToEndOfLine",
+        "command": "glencfl.copyAllRight",
         "key": "Ctrl+L",
         "when": "textInputFocus"
       },
       {
-        "command": "glencfl.cutToEndOfLine",
+        "command": "glencfl.cutAllRight",
         "key": "Ctrl+W",
         "when": "textInputFocus"
       }

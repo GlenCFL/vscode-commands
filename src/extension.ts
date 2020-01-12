@@ -8,12 +8,12 @@
 
 import * as vscode from "vscode";
 
-import { copyToEndOfLine, cutToEndOfLine } from "./commands/copyOrCutToEndOfLine";
+import { copyAllRight, cutAllRight } from "./commands/copyOrCutAllRight";
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
-    vscode.commands.registerCommand("glencfl.copyToEndOfLine", copyToEndOfLine),
-    vscode.commands.registerCommand("glencfl.cutToEndOfLine", cutToEndOfLine)
+    vscode.commands.registerCommand("glencfl.copyAllRight", copyAllRight),
+    vscode.commands.registerCommand("glencfl.cutAllRight", cutAllRight)
   );
 }
 

@@ -71,7 +71,7 @@ function mergeSelections(selections: vscode.Selection[]): vscode.Selection[] {
  * @param cut If true, this command will cut out the selected text, rather than
  * copying it.
  */
-function copyOrCutToEndOfLine(cut: boolean) {
+function copyOrCutAllRight(cut: boolean) {
   const editor = vscode.window.activeTextEditor;
 
   // Just silently exit if we don't have an active text editor with selections.
@@ -111,10 +111,10 @@ function copyOrCutToEndOfLine(cut: boolean) {
   }
 }
 
-export function copyToEndOfLine() {
-  copyOrCutToEndOfLine(false);
+export function copyAllRight() {
+  copyOrCutAllRight(false);
 }
 
-export function cutToEndOfLine() {
-  copyOrCutToEndOfLine(true);
+export function cutAllRight() {
+  copyOrCutAllRight(true);
 }
