@@ -2,7 +2,7 @@
   "name": "glencfl-vscode-commands",
   "displayName": "GlenCFL's VSCode Commands",
   "description": "Extra commands for VSCode that I personally find useful.",
-  "version": "1.1.0",
+  "version": "1.0.0",
   "publisher": "GlenCFL",
   "license": "MIT",
   "repository": {
@@ -10,69 +10,221 @@
     "url": "https://github.com/GlenCFL/vscode-commands.git"
   },
   "engines": {
-    "vscode": "^1.41.0"
+    "vscode": "^1.25.0"
   },
   "categories": [
     "Other"
   ],
   "activationEvents": [
-    "onCommand:glencfl.copyAllRight",
-    "onCommand:glencfl.cutAllRight",
-    "onCommand:glencfl.copyLine",
-    "onCommand:glencfl.cutLine"
+    "onCommand:glencfl.copyLeftAll",
+    "onCommand:glencfl.copyLeftSmart",
+    "onCommand:glencfl.copyLeftText",
+    "onCommand:glencfl.copyLineAll",
+    "onCommand:glencfl.copyLineSmart",
+    "onCommand:glencfl.copyLineText",
+    "onCommand:glencfl.copyRightAll",
+    "onCommand:glencfl.copyRightSmart",
+    "onCommand:glencfl.copyRightText",
+    "onCommand:glencfl.cutLeftAll",
+    "onCommand:glencfl.cutLeftSmart",
+    "onCommand:glencfl.cutLeftText",
+    "onCommand:glencfl.cutLineAll",
+    "onCommand:glencfl.cutLineSmart",
+    "onCommand:glencfl.cutLineText",
+    "onCommand:glencfl.cutRightAll",
+    "onCommand:glencfl.cutRightSmart",
+    "onCommand:glencfl.cutRightText",
+    "onCommand:glencfl.expandLeftAll",
+    "onCommand:glencfl.expandLeftSmart",
+    "onCommand:glencfl.expandLeftText",
+    "onCommand:glencfl.expandLineAll",
+    "onCommand:glencfl.expandLineSmart",
+    "onCommand:glencfl.expandLineText",
+    "onCommand:glencfl.expandRightAll",
+    "onCommand:glencfl.expandRightSmart",
+    "onCommand:glencfl.expandRightText"
   ],
   "main": "./out/src/extension",
   "contributes": {
     "menus": {
       "commandPalette": [
         {
-          "command": "glencfl.cutAllRight",
+          "command": "glencfl.cutLeftAll",
           "when": "!editorReadonly"
         },
         {
-          "command": "glencfl.cutLine",
+          "command": "glencfl.cutLeftSmart",
+          "when": "!editorReadonly"
+        },
+        {
+          "command": "glencfl.cutLeftText",
+          "when": "!editorReadonly"
+        },
+        {
+          "command": "glencfl.cutLineAll",
+          "when": "!editorReadonly"
+        },
+        {
+          "command": "glencfl.cutLineSmart",
+          "when": "!editorReadonly"
+        },
+        {
+          "command": "glencfl.cutLineText",
+          "when": "!editorReadonly"
+        },
+        {
+          "command": "glencfl.cutRightAll",
+          "when": "!editorReadonly"
+        },
+        {
+          "command": "glencfl.cutRightSmart",
+          "when": "!editorReadonly"
+        },
+        {
+          "command": "glencfl.cutRightText",
           "when": "!editorReadonly"
         }
       ]
     },
     "commands": [
       {
-        "command": "glencfl.copyAllRight",
-        "title": "Copy All Right"
+        "command": "glencfl.copyLeftAll",
+        "title": "Copy Left All"
       },
       {
-        "command": "glencfl.cutAllRight",
-        "title": "Cut All Right",
-        "enablement": "!editorReadonly"
+        "command": "glencfl.copyLeftSmart",
+        "title": "Copy Left Smart"
       },
       {
-        "command": "glencfl.copyLine",
-        "title": "Copy Line"
+        "command": "glencfl.copyLeftText",
+        "title": "Copy Left Text"
       },
       {
-        "command": "glencfl.cutLine",
-        "title": "Cut Line"
+        "command": "glencfl.copyLineAll",
+        "title": "Copy Line All"
+      },
+      {
+        "command": "glencfl.copyLineSmart",
+        "title": "Copy Line Smart"
+      },
+      {
+        "command": "glencfl.copyLineText",
+        "title": "Copy Line Text"
+      },
+      {
+        "command": "glencfl.copyRightAll",
+        "title": "Copy Right All"
+      },
+      {
+        "command": "glencfl.copyRightSmart",
+        "title": "Copy Right Smart"
+      },
+      {
+        "command": "glencfl.copyRightText",
+        "title": "Copy Right Text"
+      },
+      {
+        "command": "glencfl.cutLeftAll",
+        "title": "Cut Left All"
+      },
+      {
+        "command": "glencfl.cutLeftSmart",
+        "title": "Cut Left Smart"
+      },
+      {
+        "command": "glencfl.cutLeftText",
+        "title": "Cut Left Text"
+      },
+      {
+        "command": "glencfl.cutLineAll",
+        "title": "Cut Line All"
+      },
+      {
+        "command": "glencfl.cutLineSmart",
+        "title": "Cut Line Smart"
+      },
+      {
+        "command": "glencfl.cutLineText",
+        "title": "Cut Line Text"
+      },
+      {
+        "command": "glencfl.cutRightAll",
+        "title": "Cut Right All"
+      },
+      {
+        "command": "glencfl.cutRightSmart",
+        "title": "Cut Right Smart"
+      },
+      {
+        "command": "glencfl.cutRightText",
+        "title": "Cut Right Text"
+      },
+      {
+        "command": "glencfl.expandLeftAll",
+        "title": "Expand Left All"
+      },
+      {
+        "command": "glencfl.expandLeftSmart",
+        "title": "Expand Left Smart"
+      },
+      {
+        "command": "glencfl.expandLeftText",
+        "title": "Expand Left Text"
+      },
+      {
+        "command": "glencfl.expandLineAll",
+        "title": "Expand Line All"
+      },
+      {
+        "command": "glencfl.expandLineSmart",
+        "title": "Expand Line Smart"
+      },
+      {
+        "command": "glencfl.expandLineText",
+        "title": "Expand Line Text"
+      },
+      {
+        "command": "glencfl.expandRightAll",
+        "title": "Expand Right All"
+      },
+      {
+        "command": "glencfl.expandRightSmart",
+        "title": "Expand Right Smart"
+      },
+      {
+        "command": "glencfl.expandRightText",
+        "title": "Expand Right Text"
       }
     ],
     "keybindings": [
       {
-        "command": "glencfl.copyAllRight",
-        "key": "Ctrl+J",
+        "command": "glencfl.copyLeftSmart",
+        "key": "Ctrl+Shift+Left",
         "when": "textInputFocus"
       },
       {
-        "command": "glencfl.cutAllRight",
-        "key": "Ctrl+K",
+        "command": "glencfl.copyLineSmart",
+        "key": "Ctrl+Shift+Down",
         "when": "textInputFocus"
       },
       {
-        "command": "glencfl.copyLine",
-        "key": "Ctrl+;",
+        "command": "glencfl.copyRightSmart",
+        "key": "Ctrl+Shift+Right",
         "when": "textInputFocus"
       },
       {
-        "command": "glencfl.cutLine",
-        "key": "Ctrl+'",
+        "command": "glencfl.cutLeftSmart",
+        "key": "Ctrl+Shift+Alt+Left",
+        "when": "textInputFocus"
+      },
+      {
+        "command": "glencfl.cutLineSmart",
+        "key": "Ctrl+Shift+Alt+Down",
+        "when": "textInputFocus"
+      },
+      {
+        "command": "glencfl.cutLineRight",
+        "key": "Ctrl+Shift+Alt+Right",
         "when": "textInputFocus"
       }
     ]
@@ -86,7 +238,7 @@
     "package": "run-s clean build:release zip"
   },
   "devDependencies": {
-    "@types/vscode": "1.41",
+    "@types/vscode": "1.25",
     "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.0",
     "typescript": "^3.7.4",
