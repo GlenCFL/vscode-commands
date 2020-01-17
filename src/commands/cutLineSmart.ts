@@ -6,7 +6,7 @@
 
 import * as vscode from "vscode";
 
-import expandLineSmart from "./expandLineSmart";
+import { expandLineSmart } from "./expandLineSmart";
 
 /**
  * A command that expands each selection to include either all preceding and
@@ -14,8 +14,18 @@ import expandLineSmart from "./expandLineSmart";
  * and subsequent whitespace on their line(s) within the editor. It then copies
  * that newly selected text into the clipboard and deletes it from the editor.
  */
-export default async function cutLineSmart() {
+export async function cutLineSmart() {
+  let originalSelections: vscode.Selection[] | undefined;
+  if (vscode.window.activeTextEditor) {
+    originalSelections = [...vscode.window.activeTextEditor.selections];
+  }
+
   await expandLineSmart();
-  await vscode.commands.executeCommand("editor.action.clipboardCutAction");
+  await vscode.commands.executeCommand("editor.action.clipboardCopyAction");
+
+  if (vscode.window.activeTextEditor && originalSelections) {
+    vscode.window.activeTextEditor.selections = originalSelections;
+  }
+
   return vscode.commands.executeCommand("editor.action.deleteLines");
 }

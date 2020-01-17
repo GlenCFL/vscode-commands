@@ -6,7 +6,7 @@
 
 import * as vscode from "vscode";
 
-import expandLeftSmart from "./expandLeftSmart";
+import { expandLeftSmart } from "./expandLeftSmart";
 
 /**
  * A command that expands each selection from their start to include either
@@ -15,7 +15,7 @@ import expandLeftSmart from "./expandLeftSmart";
  * having higher precedence. It then copies that newly selected text into the
  * clipboard and deletes it from the editor.
  */
-export default async function cutLeftSmart() {
+export async function cutLeftSmart() {
   await expandLeftSmart();
   return vscode.commands.executeCommand("editor.action.clipboardCutAction");
 }

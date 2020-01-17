@@ -6,13 +6,14 @@
 
 import * as vscode from "vscode";
 
-import { mergeLineSharingSelections, selectLineAllAction } from "./common";
+import { mergeLineSharingSelections, selectLineTextAction } from "./common";
 
 /**
- * A command that expands each selection to include the entire contents of their
- * line(s) within the editor.
+ * A command that expands each selection to include all preceding and subsequent
+ * text, with any leading whitespace trimmed, on their line(s) within the
+ * editor.
  */
-export default async function expandLineAll() {
+export async function expandLineText() {
   const editor = vscode.window.activeTextEditor;
 
   if (!editor || editor.selections.length === 0) {
@@ -27,7 +28,7 @@ export default async function expandLineAll() {
   }
 
   for (let i = 0; i < newSelections.length; ++i) {
-    newSelections[i] = selectLineAllAction(editor, newSelections[i]);
+    newSelections[i] = selectLineTextAction(editor, newSelections[i]);
   }
 
   editor.selections = newSelections;

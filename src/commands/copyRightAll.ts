@@ -6,14 +6,14 @@
 
 import * as vscode from "vscode";
 
-import expandLeftAll from "./expandLeftAll";
+import { expandRightAll } from "./expandRightAll";
 
 /**
- * A command that expands each selection from their start to include all
- * preceding characters to the start of their line(s) within the editor. It then
+ * A command that expands each selection from their end to include all of the
+ * subsequent characters to the end of their line(s) within the editor. It then
  * copies that newly selected text into the clipboard.
  */
-export default async function copyLeftAll() {
-  await expandLeftAll();
+export async function copyRightAll() {
+  await expandRightAll();
   return vscode.commands.executeCommand("editor.action.clipboardCopyAction");
 }

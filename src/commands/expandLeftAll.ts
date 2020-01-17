@@ -6,15 +6,13 @@
 
 import * as vscode from "vscode";
 
-import { mergeLineSharingSelections, selectLeftSmartAction } from "./common";
+import { mergeLineSharingSelections, selectLeftAllAction } from "./common";
 
 /**
- * A command that expands each selection from their start to include either
- * all preceding text, with any leading whitespace trimmed, or simply the
- * preceding whitespace on their line(s) within the editor, with the former
- * having higher precedence.
+ * A command that expands each selection from their start to include all
+ * preceding characters to the start of their line(s) within the editor.
  */
-export default async function expandLeftSmart() {
+export async function expandLeftAll() {
   const editor = vscode.window.activeTextEditor;
 
   if (!editor || editor.selections.length === 0) {
@@ -29,7 +27,7 @@ export default async function expandLeftSmart() {
   }
 
   for (let i = 0; i < newSelections.length; ++i) {
-    newSelections[i] = selectLeftSmartAction(editor, newSelections[i]);
+    newSelections[i] = selectLeftAllAction(editor, newSelections[i]);
   }
 
   editor.selections = newSelections;

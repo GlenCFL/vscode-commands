@@ -6,7 +6,7 @@
 
 import * as vscode from "vscode";
 
-import expandLineText from "./expandLineText";
+import { expandLineText } from "./expandLineText";
 
 /**
  * A command that expands each selection to include all preceding and subsequent
@@ -14,8 +14,18 @@ import expandLineText from "./expandLineText";
  * editor. It then copies that newly selected text into the clipboard and
  * deletes it from the editor.
  */
-export default async function cutLineText() {
+export async function cutLineText() {
+  let originalSelections: vscode.Selection[] | undefined;
+  if (vscode.window.activeTextEditor) {
+    originalSelections = [...vscode.window.activeTextEditor.selections];
+  }
+
   await expandLineText();
-  await vscode.commands.executeCommand("editor.action.clipboardCutAction");
+  await vscode.commands.executeCommand("editor.action.clipboardCopyAction");
+
+  if (vscode.window.activeTextEditor && originalSelections) {
+    vscode.window.activeTextEditor.selections = originalSelections;
+  }
+
   return vscode.commands.executeCommand("editor.action.deleteLines");
 }

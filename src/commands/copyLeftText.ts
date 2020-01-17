@@ -6,14 +6,14 @@
 
 import * as vscode from "vscode";
 
-import expandLeftText from "./expandLeftText";
+import { expandLeftText } from "./expandLeftText";
 
 /**
  * A command that expands each selection from their start to include all
  * preceding text, with any leading whitespace trimmed, on their line(s) within
  * the editor. It then copies that newly selected text into the clipboard.
  */
-export default async function copyLeftText() {
+export async function copyLeftText() {
   await expandLeftText();
   return vscode.commands.executeCommand("editor.action.clipboardCopyAction");
 }

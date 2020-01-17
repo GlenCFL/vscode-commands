@@ -4,6 +4,8 @@
  * license information.
  * ===========================================================================*/
 
+'use strict';
+
 const path = require('path');
 const fs = require('fs');
 const rimraf = require('rimraf');

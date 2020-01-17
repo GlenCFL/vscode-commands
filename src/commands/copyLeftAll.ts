@@ -6,15 +6,14 @@
 
 import * as vscode from "vscode";
 
-import expandLeftText from "./expandLeftText";
+import { expandLeftAll } from "./expandLeftAll";
 
 /**
  * A command that expands each selection from their start to include all
- * preceding text, with any leading whitespace trimmed, on their line(s) within
- * the editor. It then copies that newly selected text into the clipboard and
- * deletes it from the editor.
+ * preceding characters to the start of their line(s) within the editor. It then
+ * copies that newly selected text into the clipboard.
  */
-export default async function cutLeftText() {
-  await expandLeftText();
-  return vscode.commands.executeCommand("editor.action.clipboardCutAction");
+export async function copyLeftAll() {
+  await expandLeftAll();
+  return vscode.commands.executeCommand("editor.action.clipboardCopyAction");
 }

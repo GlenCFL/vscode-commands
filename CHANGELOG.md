@@ -4,6 +4,13 @@ The history of changes to the extension.
 
 ---
 
+### Version 1.1.0 (January 17th, 2020)
+
+- Renamed the extension to `Reselection Commands`.
+- Made the following modifications to the `Cut Line All`, `Cut Line Text`, and `Cut Line Smart` commands:
+  + The document is now only modified only a single time, rather than twice.
+  + The selections are now moved to the correct character position on the line that follows, making the three commands consistent with `Delete Line`.
+
 ### Version 1.0.0 (January 16th, 2020)
 
 - Added 27 new commands, introducing the `Reselection` series of commands.

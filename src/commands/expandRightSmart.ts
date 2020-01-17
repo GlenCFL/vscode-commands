@@ -6,14 +6,15 @@
 
 import * as vscode from "vscode";
 
-import { mergeLineSharingSelections, selectLeftTextAction } from "./common";
+import { mergeLineSharingSelections, selectRightSmartAction } from "./common";
 
 /**
- * A command that expands each selection from their start to include all
- * preceding text, with any leading whitespace trimmed, on their line(s) within
- * the editor.
+ * A command that expands each selection from their end to include either
+ * all of the subsequent text, with any trailing whitespace trimmed, or simply
+ * all of the subsequent whitespace on their line(s) within the editor, with the
+ * former having higher precedence.
  */
-export default async function expandLeftText() {
+export async function expandRightSmart() {
   const editor = vscode.window.activeTextEditor;
 
   if (!editor || editor.selections.length === 0) {
@@ -28,7 +29,7 @@ export default async function expandLeftText() {
   }
 
   for (let i = 0; i < newSelections.length; ++i) {
-    newSelections[i] = selectLeftTextAction(editor, newSelections[i]);
+    newSelections[i] = selectRightSmartAction(editor, newSelections[i]);
   }
 
   editor.selections = newSelections;

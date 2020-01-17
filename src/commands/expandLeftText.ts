@@ -6,13 +6,14 @@
 
 import * as vscode from "vscode";
 
-import { mergeLineSharingSelections, selectRightAllAction } from "./common";
+import { mergeLineSharingSelections, selectLeftTextAction } from "./common";
 
 /**
- * A command that expands each selection from their end to include all of the
- * subsequent characters to the end of their line(s) within the editor.
+ * A command that expands each selection from their start to include all
+ * preceding text, with any leading whitespace trimmed, on their line(s) within
+ * the editor.
  */
-export default async function expandRightAll() {
+export async function expandLeftText() {
   const editor = vscode.window.activeTextEditor;
 
   if (!editor || editor.selections.length === 0) {
@@ -27,7 +28,7 @@ export default async function expandRightAll() {
   }
 
   for (let i = 0; i < newSelections.length; ++i) {
-    newSelections[i] = selectRightAllAction(editor, newSelections[i]);
+    newSelections[i] = selectLeftTextAction(editor, newSelections[i]);
   }
 
   editor.selections = newSelections;
