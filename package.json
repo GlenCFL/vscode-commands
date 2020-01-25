@@ -2,12 +2,15 @@
   "name": "reselection-commands",
   "displayName": "Reselection Commands",
   "description": "A series of commands that expand on your selections within the editor.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "publisher": "GlenCFL",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/GlenCFL/reselection-commands.git"
+  },
+  "bugs": {
+    "url": "https://github.com/GlenCFL/reselection-commands/issues"
   },
   "engines": {
     "vscode": "^1.25.0"
@@ -15,6 +18,16 @@
   "categories": [
     "Other"
   ],
+  "keywords": [
+    "selection",
+    "eol",
+    "end of line",
+    "sol",
+    "start of line",
+    "command",
+    "cut line"
+  ],
+  "icon": "assets/icon.png",
   "activationEvents": [
     "onCommand:reselection.copyLeftAll",
     "onCommand:reselection.copyLeftSmart",
@@ -194,38 +207,6 @@
       {
         "command": "reselection.expandRightText",
         "title": "Expand Right Text"
-      }
-    ],
-    "keybindings": [
-      {
-        "command": "reselection.copyLeftSmart",
-        "key": "Ctrl+Shift+Left",
-        "when": "textInputFocus"
-      },
-      {
-        "command": "reselection.copyLineSmart",
-        "key": "Ctrl+Shift+Down",
-        "when": "textInputFocus"
-      },
-      {
-        "command": "reselection.copyRightSmart",
-        "key": "Ctrl+Shift+Right",
-        "when": "textInputFocus"
-      },
-      {
-        "command": "reselection.cutLeftSmart",
-        "key": "Ctrl+Shift+Alt+Left",
-        "when": "textInputFocus"
-      },
-      {
-        "command": "reselection.cutLineSmart",
-        "key": "Ctrl+Shift+Alt+Down",
-        "when": "textInputFocus"
-      },
-      {
-        "command": "reselection.cutLineRight",
-        "key": "Ctrl+Shift+Alt+Right",
-        "when": "textInputFocus"
       }
     ]
   },

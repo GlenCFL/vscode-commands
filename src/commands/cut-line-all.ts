@@ -6,7 +6,7 @@
 
 import * as vscode from "vscode";
 
-import { expandLineAll } from "./expandLineAll";
+import { expandLineAll } from "./expand-line-all";
 
 /**
  * A command that expands each selection to include the entire contents of their

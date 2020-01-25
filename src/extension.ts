@@ -6,42 +6,41 @@
 
 import * as vscode from "vscode";
 
-// Reselection Commands =======================================================
-import { copyLeftAll } from "./commands/copyLeftAll";
-import { copyLeftSmart } from "./commands/copyLeftSmart";
-import { copyLeftText } from "./commands/copyLeftText";
+import { copyLeftAll } from "./commands/copy-left-all";
+import { copyLeftSmart } from "./commands/copy-left-smart";
+import { copyLeftText } from "./commands/copy-left-text";
 
-import { copyLineAll } from "./commands/copyLineAll";
-import { copyLineSmart } from "./commands/copyLineSmart";
-import { copyLineText } from "./commands/copyLineText";
+import { copyLineAll } from "./commands/copy-line-all";
+import { copyLineSmart } from "./commands/copy-line-smart";
+import { copyLineText } from "./commands/copy-line-text";
 
-import { copyRightAll } from "./commands/copyRightAll";
-import { copyRightSmart } from "./commands/copyRightSmart";
-import { copyRightText } from "./commands/copyRightText";
+import { copyRightAll } from "./commands/copy-right-all";
+import { copyRightSmart } from "./commands/copy-right-smart";
+import { copyRightText } from "./commands/copy-right-text";
 
-import { cutLeftAll } from "./commands/cutLeftAll";
-import { cutLeftSmart } from "./commands/cutLeftSmart";
-import { cutLeftText } from "./commands/cutLeftText";
+import { cutLeftAll } from "./commands/cut-left-all";
+import { cutLeftSmart } from "./commands/cut-left-smart";
+import { cutLeftText } from "./commands/cut-left-text";
 
-import { cutLineAll } from "./commands/cutLineAll";
-import { cutLineSmart } from "./commands/cutLineSmart";
-import { cutLineText } from "./commands/cutLineText";
+import { cutLineAll } from "./commands/cut-line-all";
+import { cutLineSmart } from "./commands/cut-line-smart";
+import { cutLineText } from "./commands/cut-line-text";
 
-import { cutRightAll } from "./commands/cutRightAll";
-import { cutRightSmart } from "./commands/cutRightSmart";
-import { cutRightText } from "./commands/cutRightText";
+import { cutRightAll } from "./commands/cut-right-all";
+import { cutRightSmart } from "./commands/cut-right-smart";
+import { cutRightText } from "./commands/cut-right-text";
 
-import { expandLeftAll } from "./commands/expandLeftAll";
-import { expandLeftSmart } from "./commands/expandLeftSmart";
-import { expandLeftText } from "./commands/expandLeftText";
+import { expandLeftAll } from "./commands/expand-left-all";
+import { expandLeftSmart } from "./commands/expand-left-smart";
+import { expandLeftText } from "./commands/expand-left-text";
 
-import { expandLineAll } from "./commands/expandLineAll";
-import { expandLineSmart } from "./commands/expandLineSmart";
-import { expandLineText } from "./commands/expandLineText";
+import { expandLineAll } from "./commands/expand-line-all";
+import { expandLineSmart } from "./commands/expand-line-smart";
+import { expandLineText } from "./commands/expand-line-text";
 
-import { expandRightAll } from "./commands/expandRightAll";
-import { expandRightSmart } from "./commands/expandRightSmart";
-import { expandRightText } from "./commands/expandRightText";
+import { expandRightAll } from "./commands/expand-right-all";
+import { expandRightSmart } from "./commands/expand-right-smart";
+import { expandRightText } from "./commands/expand-right-text";
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(

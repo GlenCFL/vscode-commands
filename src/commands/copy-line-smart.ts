@@ -6,14 +6,15 @@
 
 import * as vscode from "vscode";
 
-import { expandLineAll } from "./expandLineAll";
+import { expandLineSmart } from "./expand-line-smart";
 
 /**
- * A command that expands each selection to include the entire contents of their
- * line(s) within the editor. It then copies that newly selected text into the
- * clipboard.
+ * A command that expands each selection to include either all preceding and
+ * subsequent text, with any leading whitespace trimmed, or simply the preceding
+ * and subsequent whitespace on their line(s) within the editor. It then copies
+ * that newly selected text into the clipboard.
  */
-export async function copyLineAll() {
-  await expandLineAll();
+export async function copyLineSmart() {
+  await expandLineSmart();
   return vscode.commands.executeCommand("editor.action.clipboardCopyAction");
 }

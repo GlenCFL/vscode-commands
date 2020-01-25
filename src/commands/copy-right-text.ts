@@ -6,14 +6,15 @@
 
 import * as vscode from "vscode";
 
-import { expandLineText } from "./expandLineText";
+import { expandRightText } from "./expand-right-text";
 
 /**
- * A command that expands each selection to include all preceding and subsequent
- * text, with any leading whitespace trimmed, on their line(s) within the
- * editor. It then copies that newly selected text into the clipboard.
+ * A command that expands each selection from their end to include all of the
+ * subsequent text, with any trailing whitespace trimmed, on their line(s)
+ * within the editor. It then copies that newly selected text into the
+ * clipboard.
  */
-export async function copyLineText() {
-  await expandLineText();
+export async function copyRightText() {
+  await expandRightText();
   return vscode.commands.executeCommand("editor.action.clipboardCopyAction");
 }

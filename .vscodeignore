@@ -1,5 +1,6 @@
 .vscode/**
 .vscode-test/**
+assets/**.psd
 coverage/**
 src/**
 tasks/**

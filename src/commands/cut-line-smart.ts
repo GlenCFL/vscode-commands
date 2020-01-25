@@ -6,7 +6,7 @@
 
 import * as vscode from "vscode";
 
-import { expandLineSmart } from "./expandLineSmart";
+import { expandLineSmart } from "./expand-line-smart";
 
 /**
  * A command that expands each selection to include either all preceding and

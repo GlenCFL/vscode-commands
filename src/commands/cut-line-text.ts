@@ -6,7 +6,7 @@
 
 import * as vscode from "vscode";
 
-import { expandLineText } from "./expandLineText";
+import { expandLineText } from "./expand-line-text";
 
 /**
  * A command that expands each selection to include all preceding and subsequent

@@ -4,6 +4,11 @@ The history of changes to the extension.
 
 ---
 
+### Version 1.1.1 (January 25th, 2020)
+
+- Added an icon for the extension.
+- Removed all default keybindings as they were subjective.
+
 ### Version 1.1.0 (January 17th, 2020)
 
 - Renamed the extension to `Reselection Commands`.

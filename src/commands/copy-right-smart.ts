@@ -6,7 +6,7 @@
 
 import * as vscode from "vscode";
 
-import { expandRightSmart } from "./expandRightSmart";
+import { expandRightSmart } from "./expand-right-smart";
 
 /**
  * A command that expands each selection from their end to include either

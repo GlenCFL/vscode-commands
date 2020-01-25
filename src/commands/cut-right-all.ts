@@ -6,14 +6,15 @@
 
 import * as vscode from "vscode";
 
-import { expandRightAll } from "./expandRightAll";
+import { expandRightAll } from "./expand-right-all";
 
 /**
  * A command that expands each selection from their end to include all of the
  * subsequent characters to the end of their line(s) within the editor. It then
- * copies that newly selected text into the clipboard.
+ * copies that newly selected text into the clipboard and deletes it from the
+ * editor.
  */
-export async function copyRightAll() {
+export async function cutRightAll() {
   await expandRightAll();
-  return vscode.commands.executeCommand("editor.action.clipboardCopyAction");
+  return vscode.commands.executeCommand("editor.action.clipboardCutAction");
 }

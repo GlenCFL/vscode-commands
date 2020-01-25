@@ -6,7 +6,7 @@
 
 import * as vscode from "vscode";
 
-import { expandRightText } from "./expandRightText";
+import { expandRightText } from "./expand-right-text";
 
 /**
  * A command that expands each selection from their end to include all of the
