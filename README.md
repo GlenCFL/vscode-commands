@@ -4,47 +4,6 @@ This extension for [Visual Studio Code](https://code.visualstudio.com/) provides
 
 ---
 
-## Table of Contents
-
-+ [Expand Left](#expand-left)
-  - [Expand Left All](#expand-left-all)
-  - [Expand Left Text](#expand-left-text)
-  - [Expand Left Smart](#expand-left-smart)
-+ [Expand Right](#expand-right)
-  - [Expand Right All](#expand-right-all)
-  - [Expand Right Text](#expand-right-text)
-  - [Expand Right Smart](#expand-right-smart)
-+ [Expand Line](#expand-line)
-  - [Expand Line All](#expand-line-all)
-  - [Expand Line Text](#expand-line-text)
-  - [Expand Line Smart](#expand-line-smart)
-+ [Copy Left](#copy-left)
-  - [Copy Left All](#copy-left-all)
-  - [Copy Left Text](#copy-left-text)
-  - [Copy Left Smart](#copy-left-smart)
-+ [Copy Right](#copy-right)
-  - [Copy Right All](#copy-right-all)
-  - [Copy Right Text](#copy-right-text)
-  - [Copy Right Smart](#copy-right-smart)
-+ [Copy Line](#copy-line)
-  - [Copy Line All](#copy-line-all)
-  - [Copy Line Text](#copy-line-text)
-  - [Copy Line Smart](#copy-line-smart)
-+ [Cut Left](#cut-left)
-  - [Cut Left All](#cut-left-all)
-  - [Cut Left Text](#cut-left-text)
-  - [Cut Left Smart](#cut-left-smart)
-+ [Cut Right](#cut-right)
-  - [Cut Right All](#cut-right-all)
-  - [Cut Right Text](#cut-right-text)
-  - [Cut Right Smart](#cut-right-smart)
-+ [Cut Line](#cut-line)
-  - [Cut Line All](#cut-line-all)
-  - [Cut Line Text](#cut-line-text)
-  - [Cut Line Smart](#cut-line-smart)
-
----
-
 ## Expand Left
 
 ### Expand Left All
