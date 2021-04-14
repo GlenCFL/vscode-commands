@@ -4,6 +4,10 @@ The history of changes to the extension.
 
 ---
 
+### Version 1.2.0 (April 14th, 2021)
+
+- Update dependencies, remove build redundancies.
+
 ### Version 1.1.1 (January 25th, 2020)
 
 - Added an icon for the extension.

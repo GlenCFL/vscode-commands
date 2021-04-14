@@ -1,9 +1,8 @@
 {
-  "cSpell.words": [
-    "Readonly",
-    "devtool",
-    "enablement",
-    "typedarrays",
-    "vsce"
-  ]
+  "search.exclude": {
+    "**/.yarn": true,
+    "**/.pnp.*": true
+  },
+  "typescript.tsdk": ".yarn/sdks/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }

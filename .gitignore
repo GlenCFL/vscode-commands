@@ -1,6 +1,11 @@
-/node_modules/
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
 /out/
 /yarn-error.log
 /*.vsix
-/.vscode-test/
-/coverage/**

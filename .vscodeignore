@@ -1,10 +1,13 @@
 .vscode/**
 .vscode-test/**
+.yarn/**
 assets/**.psd
 coverage/**
 src/**
 tasks/**
 .gitignore
+.pnp.js
+.yarnrc.yml
 package-lock.json
 tsconfig.json
 yarn-error.log
