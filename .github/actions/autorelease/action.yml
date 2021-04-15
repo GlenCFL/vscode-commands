@@ -1,0 +1,11 @@
+name: 'Autorelease'
+description: 'A private Github Action for automatically releasing VSCode extensions.'
+author: 'GlenCFL'
+env:
+  'GITHUB_TOKEN': 'Provided by Github Actions.'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+branding:
+  color: 'blue'
+  icon: 'package'
