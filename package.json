@@ -1,5 +1,10 @@
 {
   "name": "reselection-commands",
+  "private": true,
+  "workspaces": [
+    "./",
+    ".github/actions/**"
+  ],
   "displayName": "Reselection Commands",
   "description": "A series of commands that expand on your selections within the editor.",
   "version": "1.2.0",
