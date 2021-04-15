@@ -22,7 +22,7 @@ interface GithubConfig {
 function getConfig(): GithubConfig | undefined {
 	const ensure = (v: string): boolean =>  {
 		if (env[v] == null) {
-			core.setFailed(`Required environment variable ${ v } was not set.`);
+			core.setFailed(`Required environment variable ${ v } was unset.`);
 			return false;
 		} else {
 			return true;
@@ -49,7 +49,8 @@ async function existingReleaseDeletion(octo: OctoKit, config: GithubConfig): Pro
 	try {
 		const release = await octo.repos.getReleaseByTag({ owner, repo, tag });
 		if (release != null) {
-			octo.repos.deleteRelease({ owner, repo, release_id: release.data.id });
+			core.warning("A release is created alongside a tag.");
+			// octo.repos.deleteRelease({ owner, repo, release_id: release.data.id });
 		} else {
 			core.warning("Getting a release which doesn't exist just returns undefined.");
 		}
