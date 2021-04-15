@@ -58,6 +58,7 @@ async function existingReleaseDeletion(octo: OctoKit, config: GithubConfig): Pro
 	try {
 		const release = await octo.repos.getReleaseByTag({ owner, repo, tag });
 		await timeout(apiTimeout);
+		core.warning(`An existing release for ${ config.reference } was deleted.`);
 		octo.repos.deleteRelease({ owner, repo, release_id: release.data.id });
 		await timeout(apiTimeout);
 		return existingReleaseDeletion(octo, config);
