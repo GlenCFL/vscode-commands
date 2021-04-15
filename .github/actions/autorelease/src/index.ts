@@ -8,6 +8,7 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 
 import { env } from "process";
+import * as fs from "fs";
 
 type OctoKit = ReturnType<typeof github.getOctokit>;
 
@@ -16,8 +17,15 @@ interface GithubRelease {
 	upload_url: string;
 	html_url: string;
 	tag_name: string;
-	body: string;
+	body?: string | null;
 	target_commitish: string;
+}
+
+export interface GithubReleaseAsset {
+	name: string;
+	mime: string;
+	size: number;
+	data: Buffer;
 }
 
 interface GithubConfig {
@@ -31,9 +39,9 @@ interface GithubConfig {
 }
 
 function getConfig(): GithubConfig | undefined {
-	const ensure = (v: string): boolean =>  {
+	const ensure = (v: string): boolean => {
 		if (env[v] == null) {
-			core.setFailed(`Required environment variable ${ v } was unset.`);
+			core.setFailed(`Required environment variable ${v} was unset.`);
 			return false;
 		} else {
 			return true;
@@ -41,7 +49,7 @@ function getConfig(): GithubConfig | undefined {
 	};
 
 	if (ensure("GITHUB_TOKEN") && ensure("GITHUB_SHA") && ensure("GITHUB_REF") && ensure("GITHUB_REPOSITORY")) {
-		const [ owner, repo ] = (<string>env.GITHUB_REPOSITORY).split("/");
+		const [owner, repo] = (<string>env.GITHUB_REPOSITORY).split("/");
 		const tag = (<string>env.GITHUB_REF).replace("refs/tags/", "");
 
 		return {
@@ -75,7 +83,7 @@ async function existingReleaseDeletion(octo: OctoKit, config: GithubConfig): Pro
 		await timeout(apiTimeout);
 		const release = await octo.repos.getReleaseByTag({ owner, repo, tag });
 		await timeout(apiTimeout);
-		core.warning(`An existing release for ${ config.tag } was deleted.`);
+		core.warning(`An existing release for ${config.tag} was deleted.`);
 		await octo.repos.deleteRelease({ owner, repo, release_id: release.data.id });
 		await timeout(apiTimeout);
 		return existingReleaseDeletion(octo, config);
@@ -86,10 +94,12 @@ async function existingReleaseDeletion(octo: OctoKit, config: GithubConfig): Pro
 
 async function existingDraftDeletion(octo: OctoKit, config: GithubConfig): Promise<void> {
 	const [owner, repo] = [config.owner, config.repo];
-	
+
 	await timeout(apiTimeout);
-	const iterator = octo.paginate.iterator<GithubRelease>(octo.repos.listReleases.endpoint.merge({ per_page: 100,
-		owner, repo }));
+	const iterator = octo.paginate.iterator<GithubRelease>(octo.repos.listReleases.endpoint.merge({
+		per_page: 100,
+		owner, repo
+	}));
 
 	let release: GithubRelease | undefined;
 	for await (const response of iterator) {
@@ -102,15 +112,16 @@ async function existingDraftDeletion(octo: OctoKit, config: GithubConfig): Promi
 
 	if (release != null) {
 		await timeout(apiTimeout);
-		core.warning(`An existing draft for ${ config.tag } was deleted.`);
+		core.warning(`An existing draft for ${config.tag} was deleted.`);
 		await octo.repos.deleteRelease({ owner, repo, release_id: release.id });
 		return existingDraftDeletion(octo, config);
 	}
 }
 
-async function publishRelease(octo: OctoKit, config: GithubConfig): Promise<void> {
+async function publishRelease(octo: OctoKit, config: GithubConfig): Promise<GithubRelease> {
 	await timeout(apiTimeout);
-	await octo.repos.createRelease({
+
+	const response = await octo.repos.createRelease({
 		owner: config.owner,
 		repo: config.repo,
 		tag_name: config.tag,
@@ -118,6 +129,53 @@ async function publishRelease(octo: OctoKit, config: GithubConfig): Promise<void
 		body: "## Test\n\nThis is a test.",
 		draft: false,
 		prerelease: false
+	});
+
+	return response.data;
+}
+
+function getReleaseAsset(): GithubReleaseAsset | void {
+	try {
+		const files = fs.readdirSync(process.cwd());
+		const file = files.find(f => f.startsWith("reselection-commands-") && f.endsWith(".vsix"));
+
+		if (file == null) {
+			core.setFailed("File upload failed due to missing VSIX file.");
+			return;
+		}
+
+		const stat = fs.lstatSync(file);
+		const data = fs.readFileSync(file);
+
+		return {
+			name: file,
+			mime: "application/zip",
+			size: stat.size,
+			data
+		};
+	} catch {
+		return;
+	}
+}
+
+async function uploadReleaseAsset(octo: OctoKit, config: GithubConfig, release: GithubRelease): Promise<void> {
+	const [owner, repo] = [config.owner, config.repo];
+
+	const asset = getReleaseAsset();
+	if (asset == null) return;
+
+	await timeout(apiTimeout);
+	await octo.repos.uploadReleaseAsset({
+		owner,
+		repo,
+		release_id: release.id,
+		headers: {
+			"content-length": asset.size,
+			"content-type": asset.mime
+		},
+		name: asset.name,
+		// @ts-ignore
+		data: asset.data
 	});
 }
 
@@ -128,7 +186,8 @@ async function main() {
 	const octo = github.getOctokit(config.token);
 	await existingDraftDeletion(octo, config);
 	await existingReleaseDeletion(octo, config);
-	await publishRelease(octo, config);
+	const release = await publishRelease(octo, config);
+	await uploadReleaseAsset(octo, config, release);
 }
 
 main();
