@@ -93,7 +93,7 @@ async function existingDraftDeletion(octo: OctoKit, config: GithubConfig): Promi
 
 	let release: GithubRelease | undefined;
 	for await (const response of iterator) {
-		let result = response.data.find(release => release.tag_name === config.reference);
+		let result = response.data.find(release => release.tag_name === config.tag);
 		if (result) {
 			release = result;
 			break;
