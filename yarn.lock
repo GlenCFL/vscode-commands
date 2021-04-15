@@ -198,10 +198,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^14.14.37":
-  version: 14.14.37
-  resolution: "@types/node@npm:14.14.37"
-  checksum: 5e2d9baf7594ebacaf016716515f30de0765169412787f981481c2fb8b468923149bb9e2e3219ee672399811672ceddc339a7372a61cf15bc656836a5494d991
+"@types/node@npm:^12.20.9":
+  version: 12.20.9
+  resolution: "@types/node@npm:12.20.9"
+  checksum: 3d9fbc9eddfca958980c9dafa7ad04bcf02da45e341e2b9269040be78279430d225dc25ce4466a84a179ed71b6c146babf431c0b36727be3d609468f19294187
   languageName: node
   linkType: hard
 
@@ -480,9 +480,10 @@ __metadata:
   dependencies:
     "@actions/core": ^1.2.7
     "@actions/github": ^4.0.0
-    "@types/node": ^14.14.37
+    "@types/node": ^12.20.9
     terser-webpack-plugin: ^5.1.1
     ts-loader: ^8.1.0
+    typescript: ^4.2.4
     webpack: ^5.33.2
     webpack-cli: ^4.6.0
   languageName: unknown

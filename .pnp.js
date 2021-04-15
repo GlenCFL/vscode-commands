@@ -286,17 +286,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@types/node", [
+        ["npm:12.20.9", {
+          "packageLocation": "./.yarn/cache/@types-node-npm-12.20.9-d13bcf395e-3d9fbc9edd.zip/node_modules/@types/node/",
+          "packageDependencies": [
+            ["@types/node", "npm:12.20.9"]
+          ],
+          "linkType": "HARD",
+        }],
         ["npm:13.13.4", {
           "packageLocation": "./.yarn/cache/@types-node-npm-13.13.4-1e30c2a062-dc52acb5f3.zip/node_modules/@types/node/",
           "packageDependencies": [
             ["@types/node", "npm:13.13.4"]
-          ],
-          "linkType": "HARD",
-        }],
-        ["npm:14.14.37", {
-          "packageLocation": "./.yarn/cache/@types-node-npm-14.14.37-6783f920bd-5e2d9baf75.zip/node_modules/@types/node/",
-          "packageDependencies": [
-            ["@types/node", "npm:14.14.37"]
           ],
           "linkType": "HARD",
         }]
@@ -706,9 +706,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["autorelease", "workspace:.github/actions/autorelease"],
             ["@actions/core", "npm:1.2.7"],
             ["@actions/github", "npm:4.0.0"],
-            ["@types/node", "npm:14.14.37"],
+            ["@types/node", "npm:12.20.9"],
             ["terser-webpack-plugin", "virtual:6b38e09902b20ebcc57d3ca814731f720d604b52147f639d93dda1ccca0f30f213925413ca5299b48c76b5b55a550f3c545f427c46724ee133abdff6f6b1d197#npm:5.1.1"],
             ["ts-loader", "virtual:6b38e09902b20ebcc57d3ca814731f720d604b52147f639d93dda1ccca0f30f213925413ca5299b48c76b5b55a550f3c545f427c46724ee133abdff6f6b1d197#npm:8.1.0"],
+            ["typescript", "patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"],
             ["webpack", "virtual:6b38e09902b20ebcc57d3ca814731f720d604b52147f639d93dda1ccca0f30f213925413ca5299b48c76b5b55a550f3c545f427c46724ee133abdff6f6b1d197#npm:5.33.2"],
             ["webpack-cli", "virtual:6b38e09902b20ebcc57d3ca814731f720d604b52147f639d93dda1ccca0f30f213925413ca5299b48c76b5b55a550f3c545f427c46724ee133abdff6f6b1d197#npm:4.6.0"]
           ],
@@ -2866,7 +2867,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["loader-utils", "npm:2.0.0"],
             ["micromatch", "npm:4.0.4"],
             ["semver", "npm:7.3.5"],
-            ["typescript", null],
+            ["typescript", "patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"],
             ["webpack", "virtual:6b38e09902b20ebcc57d3ca814731f720d604b52147f639d93dda1ccca0f30f213925413ca5299b48c76b5b55a550f3c545f427c46724ee133abdff6f6b1d197#npm:5.33.2"]
           ],
           "packagePeers": [
