@@ -42,23 +42,28 @@ function getConfig(): GithubConfig | undefined {
 	}
 }
 
-async function existingReleaseDeletion(octo: OctoKit, config: GithubConfig): Promise<boolean> {
+const apiTimeout = 250;
+async function timeout(milliseconds: number): Promise<void> {
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve();
+		}, milliseconds);
+	});
+}
+
+async function existingReleaseDeletion(octo: OctoKit, config: GithubConfig): Promise<void> {
 	const [ owner, repo ] = config.repository.split("/");
 	const tag = config.reference.replace("refs/tags/", "");
 
 	try {
 		const release = await octo.repos.getReleaseByTag({ owner, repo, tag });
-		if (release != null) {
-			core.warning("A release is created alongside a tag.");
-			// octo.repos.deleteRelease({ owner, repo, release_id: release.data.id });
-		} else {
-			core.warning("Getting a release which doesn't exist just returns undefined.");
-		}
+		await timeout(apiTimeout);
+		octo.repos.deleteRelease({ owner, repo, release_id: release.data.id });
+		await timeout(apiTimeout);
+		return existingReleaseDeletion(octo, config);
 	} catch {
-		core.warning("Getting a release which doesn't exist throws.");
+		return;
 	}
-
-	return true;
 }
 
 async function main() {
@@ -72,12 +77,9 @@ async function main() {
 	} else {
 		octo = github.getOctokit(config.token);
 	}
-	
-	if (await existingReleaseDeletion(octo, config)) {
-		console.log("Good times.");
-	} else {
-		core.setFailed("Bad times.");
-	}
+
+	await existingReleaseDeletion(octo, config);
+	console.log("Good times.");
 }
 
 main();
