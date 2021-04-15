@@ -102,6 +102,7 @@ async function existingDraftDeletion(octo: OctoKit, config: GithubConfig): Promi
 
 	if (release != null) {
 		await timeout(apiTimeout);
+		core.warning(`An existing draft for ${ config.tag } was deleted.`);
 		await octo.repos.deleteRelease({ owner, repo, release_id: release.id });
 		return existingDraftDeletion(octo, config);
 	}
