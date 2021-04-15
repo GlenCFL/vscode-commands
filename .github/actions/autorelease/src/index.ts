@@ -23,8 +23,10 @@ interface GithubRelease {
 interface GithubConfig {
 	token: string;
 	sha: string;
+	tag: string;
 	reference: string;
-	repository: string;
+	owner: string;
+	repo: string;
 	prerelease: boolean;
 }
 
@@ -39,11 +41,16 @@ function getConfig(): GithubConfig | undefined {
 	};
 
 	if (ensure("GITHUB_TOKEN") && ensure("GITHUB_SHA") && ensure("GITHUB_REF") && ensure("GITHUB_REPOSITORY")) {
+		const [ owner, repo ] = (<string>env.GITHUB_REPOSITORY).split("/");
+		const tag = (<string>env.GITHUB_REF).replace("refs/tags/", "");
+
 		return {
 			token: env.GITHUB_TOKEN as string,
 			sha: env.GITHUB_SHA as string,
 			reference: env.GITHUB_REF as string,
-			repository: env.GITHUB_REPOSITORY as string,
+			owner,
+			repo,
+			tag,
 			prerelease: env.INPUT_PRERELEASE == "true"
 		};
 	} else {
@@ -61,14 +68,15 @@ async function timeout(milliseconds: number): Promise<void> {
 }
 
 async function existingReleaseDeletion(octo: OctoKit, config: GithubConfig): Promise<void> {
-	const [ owner, repo ] = config.repository.split("/");
 	const tag = config.reference.replace("refs/tags/", "");
 
 	try {
+		const [owner, repo] = [config.owner, config.repo];
+		await timeout(apiTimeout);
 		const release = await octo.repos.getReleaseByTag({ owner, repo, tag });
 		await timeout(apiTimeout);
-		core.warning(`An existing release for ${ config.reference } was deleted.`);
-		octo.repos.deleteRelease({ owner, repo, release_id: release.data.id });
+		core.warning(`An existing release for ${ config.tag } was deleted.`);
+		await octo.repos.deleteRelease({ owner, repo, release_id: release.data.id });
 		await timeout(apiTimeout);
 		return existingReleaseDeletion(octo, config);
 	} catch {
@@ -77,7 +85,9 @@ async function existingReleaseDeletion(octo: OctoKit, config: GithubConfig): Pro
 }
 
 async function existingDraftDeletion(octo: OctoKit, config: GithubConfig): Promise<void> {
-	const [ owner, repo ] = config.repository.split("/");
+	const [owner, repo] = [config.owner, config.repo];
+	
+	await timeout(apiTimeout);
 	const iterator = octo.paginate.iterator<GithubRelease>(octo.repos.listReleases.endpoint.merge({ per_page: 100,
 		owner, repo }));
 
@@ -92,8 +102,22 @@ async function existingDraftDeletion(octo: OctoKit, config: GithubConfig): Promi
 
 	if (release != null) {
 		await timeout(apiTimeout);
-		octo.repos.deleteRelease({ owner, repo, release_id: release.id });
+		await octo.repos.deleteRelease({ owner, repo, release_id: release.id });
+		return existingDraftDeletion(octo, config);
 	}
+}
+
+async function publishRelease(octo: OctoKit, config: GithubConfig): Promise<void> {
+	await timeout(apiTimeout);
+	await octo.repos.createRelease({
+		owner: config.owner,
+		repo: config.repo,
+		tag_name: config.tag,
+		name: config.tag,
+		body: "## Test\n\nThis is a test.",
+		draft: false,
+		prerelease: false
+	});
 }
 
 async function main() {
@@ -101,11 +125,9 @@ async function main() {
 	if (config == null) return;
 
 	const octo = github.getOctokit(config.token);
-	await timeout(apiTimeout);
 	await existingDraftDeletion(octo, config);
-	await timeout(apiTimeout);
 	await existingReleaseDeletion(octo, config);
-	console.log("Good times.");
+	await publishRelease(octo, config);
 }
 
 main();
