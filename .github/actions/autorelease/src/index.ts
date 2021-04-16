@@ -10,6 +10,8 @@ import * as github from "@actions/github";
 import { env } from "process";
 import * as fs from "fs";
 
+import * as utils from "./utils";
+
 type OctoKit = ReturnType<typeof github.getOctokit>;
 
 interface PackageInformation {
@@ -71,26 +73,17 @@ function getConfig(): GithubConfig | undefined {
 	}
 }
 
-const apiTimeout = 250;
-async function timeout(milliseconds: number): Promise<void> {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			resolve();
-		}, milliseconds);
-	});
-}
-
 async function existingReleaseDeletion(octo: OctoKit, config: GithubConfig): Promise<void> {
 	const tag = config.reference.replace("refs/tags/", "");
 
 	try {
 		const [owner, repo] = [config.owner, config.repo];
-		await timeout(apiTimeout);
+		await utils.apiTimeout();
 		const release = await octo.repos.getReleaseByTag({ owner, repo, tag });
-		await timeout(apiTimeout);
+		await utils.apiTimeout();
 		core.warning(`An existing release for ${config.tag} was deleted.`);
 		await octo.repos.deleteRelease({ owner, repo, release_id: release.data.id });
-		await timeout(apiTimeout);
+		await utils.apiTimeout();
 		return existingReleaseDeletion(octo, config);
 	} catch {
 		return;
@@ -100,7 +93,7 @@ async function existingReleaseDeletion(octo: OctoKit, config: GithubConfig): Pro
 async function existingDraftDeletion(octo: OctoKit, config: GithubConfig): Promise<void> {
 	const [owner, repo] = [config.owner, config.repo];
 
-	await timeout(apiTimeout);
+	await utils.apiTimeout();
 	const iterator = octo.paginate.iterator<GithubRelease>(octo.repos.listReleases.endpoint.merge({
 		per_page: 100,
 		owner, repo
@@ -116,69 +109,39 @@ async function existingDraftDeletion(octo: OctoKit, config: GithubConfig): Promi
 	}
 
 	if (release != null) {
-		await timeout(apiTimeout);
+		await utils.apiTimeout();
 		core.warning(`An existing draft for ${config.tag} was deleted.`);
 		await octo.repos.deleteRelease({ owner, repo, release_id: release.id });
 		return existingDraftDeletion(octo, config);
 	}
 }
 
-function fileExists(filePath: string): Promise<boolean> {
-	return new Promise(resolve => {
-		fs.access(filePath, fs.constants.F_OK, (err) => {
-			err == null ? resolve(true) : resolve(false);
-		});
-	});
-}
-
-function hasReadAccess(filePath: string): Promise<boolean> {
-	return new Promise(resolve => {
-		fs.access(filePath, fs.constants.F_OK | fs.constants.R_OK, (err) => {
-			err == null ? resolve(true) : resolve(false);
-		});
-	});
-}
-
-function splitLines(text: string, lineBreaks?: boolean): string[] {
-	if (lineBreaks) {
-		const splitResult = text.split(/([^\n]*(?:\r?\n|$))/g);
-		const filterResult = splitResult.filter(value => value.length !== 0);
-
-		// We lose the last line if it's completely empty above, so we need to add it
-		// back in.
-		const index = text.lastIndexOf("\n") + 1;
-		if (text[index] === undefined) {
-			filterResult.push("");
-		}
-
-		return filterResult;
-	} else {
-		return text.split(/\r?\n/g);
-	}
-}
-
 async function parseChangeLog(config: GithubConfig, info: PackageInformation): Promise<string | undefined> {
 	const logPath = "./CHANGELOG.md";
+	const [status, data] = await utils.readFile(logPath);
 
-	if (!await fileExists(logPath)) {
-		core.setFailed("Missing CHANGELOG.md at repository root.");
+	switch(status) {
+		case utils.FileReadStatus.SUCCESS:
+			break;
+		case utils.FileReadStatus.FILE_MISSING:
+			core.setFailed("Missing CHANGELOG.md at repository root.");
+			return;
+		case utils.FileReadStatus.NO_READ_ACCESS:
+			core.setFailed("No read access on CHANGELOG.md at repository root.");
+			return;
+		case utils.FileReadStatus.FAILED_READ:
+			core.setFailed("Failed to read CHANGELOG.md file from disk.");
+			return;
+		default:
+			return utils.assertUnreachable(status);
+	}
+
+	if (data == null) {
+		core.setFailed("Failed due to not being provided with data on a successful CHANGELOG.md read.");
 		return;
 	}
 
-	if (!await hasReadAccess(logPath)) {
-		core.setFailed("No read access on CHANGELOG.md at repository root.");
-		return;
-	}
-
-	let data: string | undefined;
-	try {
-		data = fs.readFileSync(logPath).toString();
-	} catch {
-		core.setFailed("Failed to read CHANGELOG.md file from disk.");
-		return;
-	}
-
-	const lines = splitLines(data);
+	const lines = utils.splitLines(data.toString());
 	const changeHeader = /^#{1,6}\s+Version\s+([0-9]{1,4}.[0-9]{1,4}.[0-9]{1,4}) \(.*\)\s?$/;
 
 	let startIndex: number | undefined;
@@ -221,7 +184,7 @@ async function parseChangeLog(config: GithubConfig, info: PackageInformation): P
 async function publishRelease(octo: OctoKit, config: GithubConfig, info: PackageInformation):
 	Promise<GithubRelease | undefined> {
 
-	await timeout(apiTimeout);
+	await utils.apiTimeout();
 
 	const changes = await parseChangeLog(config, info);
 	if (changes == null) {
@@ -243,27 +206,32 @@ async function publishRelease(octo: OctoKit, config: GithubConfig, info: Package
 
 async function getPackageInfo(): Promise<{ name: string, version: string } | undefined> {
 	const packageFilePath = "./package.json";
-	if (!await fileExists(packageFilePath)) {
-		core.setFailed("Missing package.json file at repository root.");
-		return;
+	const [status, data] = await utils.readFile(packageFilePath);
+
+	switch (status) {
+		case utils.FileReadStatus.SUCCESS:
+			break;
+		case utils.FileReadStatus.FILE_MISSING:
+			core.setFailed("Missing package.json file at repository root.");
+			return;
+		case utils.FileReadStatus.NO_READ_ACCESS:
+			core.setFailed("No read access on package.json file at repository root.");
+			return;
+		case utils.FileReadStatus.FAILED_READ:
+			core.setFailed("Failed to read package.json file from disk.");
+			return;
+		default:
+			return utils.assertUnreachable(status);
 	}
 
-	if (!await hasReadAccess(packageFilePath)) {
-		core.setFailed("No read access on package.json file at repository root.");
-		return;
-	}
-
-	let data: string | undefined;
-	try {
-		data = fs.readFileSync(packageFilePath).toString();
-	} catch {
-		core.setFailed("Failed to read package.json file from disk.");
+	if (data == null) {
+		core.setFailed("Failed due to not being provided with data on a successful package.json read.")
 		return;
 	}
 
 	let info: Partial<PackageInformation>;
 	try {
-		info = JSON.parse(data);
+		info = JSON.parse(data.toString());
 	} catch {
 		core.setFailed("Failed to parse package.json file.");
 		return;
@@ -294,22 +262,32 @@ async function getVSCEBuildArtifact(config: GithubConfig, info: PackageInformati
 		return;
 	}
 
-	try {
-		const filePath = `./${info.name}-${info.version}.vsix`;
+	const filePath = `./${info.name}-${info.version}.vsix`;
+	const [status, data] = await utils.readFile(filePath);
 
-		if (!await fileExists(filePath)) {
+	switch (status) {
+		case utils.FileReadStatus.SUCCESS:
+			break;
+		case utils.FileReadStatus.FILE_MISSING:
 			core.setFailed("File upload failed as the VSIX file is missing.");
 			return;
-		}
-
-		if (!await hasReadAccess(filePath)) {
+		case utils.FileReadStatus.NO_READ_ACCESS:
 			core.setFailed("File upload failed due to missing read access on the VSIX file.");
 			return;
-		}
+		case utils.FileReadStatus.FAILED_READ:
+			core.setFailed("Failed to read VSIX file from disk.");
+			return;
+		default:
+			return utils.assertUnreachable(status);
+	}
 
+	if (data == null) {
+		core.setFailed("Failed due to not being provided with data on a successful VSIX read.");
+		return;
+	}
+
+	try {
 		const stat = fs.lstatSync(filePath);
-		const data = fs.readFileSync(filePath);
-
 		return {
 			name: `${info.name}-${info.version}.vsix`,
 			mime: "application/zip",
@@ -317,6 +295,7 @@ async function getVSCEBuildArtifact(config: GithubConfig, info: PackageInformati
 			data
 		};
 	} catch {
+		core.setFailed("Failed to stat the VSIX file.");
 		return;
 	}
 }
@@ -329,7 +308,7 @@ async function uploadReleaseAsset(octo: OctoKit, config: GithubConfig, release: 
 	const asset = await getVSCEBuildArtifact(config, info);
 	if (asset == null) return;
 
-	await timeout(apiTimeout);
+	await utils.apiTimeout();
 	await octo.repos.uploadReleaseAsset({
 		owner,
 		repo,

@@ -4,12 +4,9 @@ The history of changes to the extension.
 
 ---
 
-### Version 1.2.1 (April 14th, 2021)
+### Version 1.2.1 (April 16th, 2021)
 
-- This is a test release.
-- This should automatically appear on the release page.
-
-Without cutting off this text.
+- Automatic handling of Github releases through Github Actions.
 
 ### Version 1.2.0 (April 14th, 2021)
 
