@@ -123,22 +123,6 @@ async function existingDraftDeletion(octo: OctoKit, config: GithubConfig): Promi
 	}
 }
 
-async function publishRelease(octo: OctoKit, config: GithubConfig): Promise<GithubRelease> {
-	await timeout(apiTimeout);
-
-	const response = await octo.repos.createRelease({
-		owner: config.owner,
-		repo: config.repo,
-		tag_name: config.tag,
-		name: config.tag,
-		body: "## Test\n\nThis is a test.",
-		draft: false,
-		prerelease: false
-	});
-
-	return response.data;
-}
-
 function fileExists(filePath: string): Promise<boolean> {
 	return new Promise(resolve => {
 		fs.access(filePath, fs.constants.F_OK, (err) => {
@@ -153,6 +137,108 @@ function hasReadAccess(filePath: string): Promise<boolean> {
 			err == null ? resolve(true) : resolve(false);
 		});
 	});
+}
+
+function splitLines(text: string, lineBreaks?: boolean): string[] {
+	if (lineBreaks) {
+		const splitResult = text.split(/([^\n]*(?:\r?\n|$))/g);
+		const filterResult = splitResult.filter(value => value.length !== 0);
+
+		// We lose the last line if it's completely empty above, so we need to add it
+		// back in.
+		const index = text.lastIndexOf("\n") + 1;
+		if (text[index] === undefined) {
+			filterResult.push("");
+		}
+
+		return filterResult;
+	} else {
+		return text.split(/\r?\n/g);
+	}
+}
+
+async function parseChangeLog(config: GithubConfig, info: PackageInformation): Promise<string | undefined> {
+	const logPath = "./CHANGELOG.md";
+
+	if (!await fileExists(logPath)) {
+		core.setFailed("Missing CHANGELOG.md at repository root.");
+		return;
+	}
+
+	if (!await hasReadAccess(logPath)) {
+		core.setFailed("No read access on CHANGELOG.md at repository root.");
+		return;
+	}
+
+	let data: string | undefined;
+	try {
+		data = fs.readFileSync(logPath).toString();
+	} catch {
+		core.setFailed("Failed to read CHANGELOG.md file from disk.");
+		return;
+	}
+
+	const lines = splitLines(data);
+	const changeHeader = /^#{1,6}\s+Version\s+([0-9]{1,4}.[0-9]{1,4}.[0-9]{1,4}) \(.*\)\s?$/;
+
+	let startIndex: number | undefined;
+	let endIndex: number | undefined;
+	for (let i = 0; i < lines.length; ++i) {
+		const line = lines[i];
+		const result = line.match(changeHeader);
+		if (result == null || result[1] == null) continue;
+		let version = result[1];
+
+		if (startIndex != null) {
+			endIndex = i;
+			break;
+		} else if (config.tag === `v${ version }`) {
+			startIndex = i;
+		}
+	}
+
+	if (startIndex == null) {
+		core.setFailed(`The CHANGELOG.md does not contain an entry for tag ${ config.tag }.`); // We get to here..
+		return;
+	}
+
+	if (endIndex == null) {
+		endIndex = lines.length - 1;
+	}
+
+	if (startIndex === endIndex) {
+		core.setFailed(`The CHANGELOG.md entry for ${ info.version } is empty.`);
+		return;
+	}
+
+	let s: string = "";
+	for (let i = startIndex + 1; i < endIndex; ++i) {
+		s += `${ lines[i] }\n`;
+	}
+	return s;
+}
+
+async function publishRelease(octo: OctoKit, config: GithubConfig, info: PackageInformation):
+	Promise<GithubRelease | undefined> {
+
+	await timeout(apiTimeout);
+
+	const changes = await parseChangeLog(config, info);
+	if (changes == null) {
+		return;
+	}
+
+	const response = await octo.repos.createRelease({
+		owner: config.owner,
+		repo: config.repo,
+		tag_name: config.tag,
+		name: config.tag,
+		body: changes,
+		draft: false,
+		prerelease: false
+	});
+
+	return response.data;
 }
 
 async function getPackageInfo(): Promise<{ name: string, version: string } | undefined> {
@@ -196,8 +282,9 @@ async function getPackageInfo(): Promise<{ name: string, version: string } | und
 	return { name: info.name, version: info.version };
 }
 
-async function getVSCEBuildArtifact(config: GithubConfig): Promise<GithubReleaseAsset | undefined> {
-	const info = await getPackageInfo();
+async function getVSCEBuildArtifact(config: GithubConfig, info: PackageInformation):
+	Promise<GithubReleaseAsset | undefined> {
+
 	if (info == null) {
 		return;
 	}
@@ -234,10 +321,12 @@ async function getVSCEBuildArtifact(config: GithubConfig): Promise<GithubRelease
 	}
 }
 
-async function uploadReleaseAsset(octo: OctoKit, config: GithubConfig, release: GithubRelease): Promise<void> {
+async function uploadReleaseAsset(octo: OctoKit, config: GithubConfig, release: GithubRelease,
+	info: PackageInformation): Promise<void> {
+
 	const [owner, repo] = [config.owner, config.repo];
 
-	const asset = await getVSCEBuildArtifact(config);
+	const asset = await getVSCEBuildArtifact(config, info);
 	if (asset == null) return;
 
 	await timeout(apiTimeout);
@@ -250,7 +339,6 @@ async function uploadReleaseAsset(octo: OctoKit, config: GithubConfig, release: 
 			"content-type": asset.mime
 		},
 		name: asset.name,
-		// TODO(glen): passing a buffer here works, yet converting it to a string doesn't -- figure that out
 		// @ts-ignore
 		data: asset.data
 	});
@@ -258,13 +346,26 @@ async function uploadReleaseAsset(octo: OctoKit, config: GithubConfig, release: 
 
 async function main() {
 	const config = getConfig();
-	if (config == null) return;
+	if (config == null) {
+		process.exit(core.ExitCode.Failure);
+	}
 
 	const octo = github.getOctokit(config.token);
 	await existingDraftDeletion(octo, config);
 	await existingReleaseDeletion(octo, config);
-	const release = await publishRelease(octo, config);
-	await uploadReleaseAsset(octo, config, release);
+
+	const info = await getPackageInfo();
+	if (info == null) {
+		process.exit(core.ExitCode.Failure);
+	}
+
+	const release = await publishRelease(octo, config, info);
+	if (release == null) {
+		process.exit(core.ExitCode.Failure);
+	}
+
+	await uploadReleaseAsset(octo, config, release, info);
+	process.exit(core.ExitCode.Success);
 }
 
 main();
