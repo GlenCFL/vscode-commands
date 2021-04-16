@@ -188,15 +188,29 @@ async function parseChangeLog(config: GithubConfig, info: PackageInformation): P
 	}
 
 	if (startIndex === endIndex) {
-		core.setFailed(`The CHANGELOG.md entry for ${ info.version } is empty.`);
+		core.setFailed(`The CHANGELOG.md entry for ${ info.version } had zero lines.`);
 		return;
 	}
 
+	let empty = true;
+	let emptyRegex = /^\s*$/;
+
 	let s: string = "";
 	for (let i = startIndex + 1; i < endIndex; ++i) {
-		s += `${ lines[i] }\n`;
+		const line = lines[i];
+		s += `${ line }\n`;
+
+		if (!emptyRegex.test(line)) {
+			empty = false;
+		}
 	}
-	return s;
+
+	if (empty) {
+		core.setFailed(`The CHANGELOG.md entry for ${ info.version } contained no text.`);
+		return;
+	} else {
+		return s;
+	}
 }
 
 async function publishRelease(octo: OctoKit, config: GithubConfig, info: PackageInformation):
@@ -319,26 +333,33 @@ async function getVSCEBuildArtifact(config: GithubConfig, info: PackageInformati
 }
 
 async function uploadReleaseAsset(octo: OctoKit, config: GithubConfig, release: GithubRelease,
-	info: PackageInformation): Promise<void> {
+	info: PackageInformation): Promise<boolean> {
 
 	const [owner, repo] = [config.owner, config.repo];
 
 	const asset = await getVSCEBuildArtifact(config, info);
-	if (asset == null) return;
+	if (asset == null) return false;
 
-	await utils.apiTimeout();
-	await octo.repos.uploadReleaseAsset({
-		owner,
-		repo,
-		release_id: release.id,
-		headers: {
-			"content-length": asset.size,
-			"content-type": asset.mime
-		},
-		name: asset.name,
-		// @ts-ignore
-		data: asset.data
-	});
+	try {
+		await utils.apiTimeout();
+		await octo.repos.uploadReleaseAsset({
+			owner,
+			repo,
+			release_id: release.id,
+			headers: {
+				"content-length": asset.size,
+				"content-type": asset.mime
+			},
+			name: asset.name,
+			// @ts-ignore
+			data: asset.data
+		});
+
+		return true;
+	} catch {
+		core.setFailed("Failed to upload the VSIX release asset.");
+		return false;
+	}
 }
 
 async function main() {
@@ -361,8 +382,8 @@ async function main() {
 		process.exit(core.ExitCode.Failure);
 	}
 
-	await uploadReleaseAsset(octo, config, release, info);
-	process.exit(core.ExitCode.Success);
+	const upload = await uploadReleaseAsset(octo, config, release, info);
+	upload ? process.exit(core.ExitCode.Success) : process.exit(core.ExitCode.Failure);
 }
 
 main();
