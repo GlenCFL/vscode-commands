@@ -12,6 +12,11 @@ import * as fs from "fs";
 
 type OctoKit = ReturnType<typeof github.getOctokit>;
 
+interface PackageInformation {
+	name: string;
+	version: string;
+}
+
 interface GithubRelease {
 	id: number;
 	upload_url: string;
@@ -134,21 +139,92 @@ async function publishRelease(octo: OctoKit, config: GithubConfig): Promise<Gith
 	return response.data;
 }
 
-function getReleaseAsset(): GithubReleaseAsset | void {
-	try {
-		const files = fs.readdirSync(process.cwd());
-		const file = files.find(f => f.startsWith("reselection-commands-") && f.endsWith(".vsix"));
+function fileExists(filePath: string): Promise<boolean> {
+	return new Promise(resolve => {
+		fs.access(filePath, fs.constants.F_OK, (err) => {
+			err == null ? resolve(true) : resolve(false);
+		});
+	});
+}
 
-		if (file == null) {
-			core.setFailed("File upload failed due to missing VSIX file.");
+function hasReadAccess(filePath: string): Promise<boolean> {
+	return new Promise(resolve => {
+		fs.access(filePath, fs.constants.F_OK | fs.constants.R_OK, (err) => {
+			err == null ? resolve(true) : resolve(false);
+		});
+	});
+}
+
+async function getPackageInfo(): Promise<{ name: string, version: string } | undefined> {
+	const packageFilePath = "./package.json";
+	if (!await fileExists(packageFilePath)) {
+		core.setFailed("Missing package.json file at repository root.");
+		return;
+	}
+
+	if (!await hasReadAccess(packageFilePath)) {
+		core.setFailed("No read access on package.json file at repository root.");
+		return;
+	}
+
+	let data: string | undefined;
+	try {
+		data = fs.readFileSync(packageFilePath).toString();
+	} catch {
+		core.setFailed("Failed to read package.json file from disk.");
+		return;
+	}
+
+	let info: Partial<PackageInformation>;
+	try {
+		info = JSON.parse(data);
+	} catch {
+		core.setFailed("Failed to parse package.json file.");
+		return;
+	}
+
+	if (info.name == null) {
+		core.setFailed("The package.json file had no name field.");
+		return;
+	}
+
+	if (info.version == null) {
+		core.setFailed("The package.json file had no version field.");
+		return;
+	}
+
+	return { name: info.name, version: info.version };
+}
+
+async function getVSCEBuildArtifact(config: GithubConfig): Promise<GithubReleaseAsset | undefined> {
+	const info = await getPackageInfo();
+	if (info == null) {
+		return;
+	}
+
+	if (config.tag !== `v${ info.version }`) {
+		core.setFailed(`Tag version ${ config.tag } does not match package.json version ${ info.version }.`);
+		return;
+	}
+
+	try {
+		const filePath = `./${info.name}-${info.version}.vsix`;
+
+		if (!await fileExists(filePath)) {
+			core.setFailed("File upload failed as the VSIX file is missing.");
 			return;
 		}
 
-		const stat = fs.lstatSync(file);
-		const data = fs.readFileSync(file);
+		if (!await hasReadAccess(filePath)) {
+			core.setFailed("File upload failed due to missing read access on the VSIX file.");
+			return;
+		}
+
+		const stat = fs.lstatSync(filePath);
+		const data = fs.readFileSync(filePath);
 
 		return {
-			name: file,
+			name: `${info.name}-${info.version}.vsix`,
 			mime: "application/zip",
 			size: stat.size,
 			data
@@ -161,7 +237,7 @@ function getReleaseAsset(): GithubReleaseAsset | void {
 async function uploadReleaseAsset(octo: OctoKit, config: GithubConfig, release: GithubRelease): Promise<void> {
 	const [owner, repo] = [config.owner, config.repo];
 
-	const asset = getReleaseAsset();
+	const asset = await getVSCEBuildArtifact(config);
 	if (asset == null) return;
 
 	await timeout(apiTimeout);
@@ -174,6 +250,7 @@ async function uploadReleaseAsset(octo: OctoKit, config: GithubConfig, release: 
 			"content-type": asset.mime
 		},
 		name: asset.name,
+		// TODO(glen): passing a buffer here works, yet converting it to a string doesn't -- figure that out
 		// @ts-ignore
 		data: asset.data
 	});
