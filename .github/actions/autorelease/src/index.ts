@@ -73,46 +73,64 @@ function getConfig(): GithubConfig | undefined {
 	}
 }
 
-async function existingReleaseDeletion(octo: OctoKit, config: GithubConfig): Promise<void> {
-	const tag = config.reference.replace("refs/tags/", "");
+async function existingReleaseDeletion(octo: OctoKit, config: GithubConfig): Promise<boolean> {
+	const [owner, repo] = [config.owner, config.repo];
 
+	// getReleaseByTag() throws whenever we try to get a release that doesn't exist
 	try {
-		const [owner, repo] = [config.owner, config.repo];
 		await utils.apiTimeout();
-		const release = await octo.repos.getReleaseByTag({ owner, repo, tag });
+		const release = await octo.repos.getReleaseByTag({ owner, repo, tag: config.tag });
 		await utils.apiTimeout();
 		core.warning(`An existing release for ${config.tag} was deleted.`);
 		await octo.repos.deleteRelease({ owner, repo, release_id: release.data.id });
-		await utils.apiTimeout();
-		return existingReleaseDeletion(octo, config);
 	} catch {
-		return;
+		return true;
+	}
+
+	try {
+		await utils.apiTimeout();
+		await octo.repos.getReleaseByTag({ owner, repo, tag: config.tag });
+		core.setFailed(`Failed to delete existing release for tag ${ config.tag }.`);
+		return false;
+	} catch {
+		return true;
 	}
 }
 
-async function existingDraftDeletion(octo: OctoKit, config: GithubConfig): Promise<void> {
+async function existingDraftDeletion(octo: OctoKit, config: GithubConfig): Promise<boolean> {
 	const [owner, repo] = [config.owner, config.repo];
 
-	await utils.apiTimeout();
-	const iterator = octo.paginate.iterator<GithubRelease>(octo.repos.listReleases.endpoint.merge({
-		per_page: 100,
-		owner, repo
-	}));
+	const fetchDraft = async (octo: OctoKit, config: GithubConfig): Promise<GithubRelease | undefined> => {
+		await utils.apiTimeout();
+		const iterator = octo.paginate.iterator<GithubRelease>(octo.repos.listReleases.endpoint.merge({
+			per_page: 100,
+			owner, repo
+		}));
 
-	let release: GithubRelease | undefined;
-	for await (const response of iterator) {
-		let result = response.data.find(release => release.tag_name === config.tag);
-		if (result) {
-			release = result;
-			break;
+		let release: GithubRelease | undefined;
+		for await (const response of iterator) {
+			let result = response.data.find(release => release.tag_name === config.tag);
+			if (result) {
+				release = result;
+				break;
+			}
 		}
-	}
+		return release;
+	};
 
+	const release = await fetchDraft(octo, config);
 	if (release != null) {
 		await utils.apiTimeout();
 		core.warning(`An existing draft for ${config.tag} was deleted.`);
 		await octo.repos.deleteRelease({ owner, repo, release_id: release.id });
-		return existingDraftDeletion(octo, config);
+	}
+
+	const update = await fetchDraft(octo, config);
+	if (update == null) {
+		return true;
+	} else {
+		core.setFailed(`Failed to delete existing draft for tag ${ config.tag }.`);
+		return false;
 	}
 }
 
@@ -330,8 +348,8 @@ async function main() {
 	}
 
 	const octo = github.getOctokit(config.token);
-	await existingDraftDeletion(octo, config);
-	await existingReleaseDeletion(octo, config);
+	if (!await existingDraftDeletion(octo, config)) process.exit(core.ExitCode.Failure);
+	if (!await existingReleaseDeletion(octo, config)) process.exit(core.ExitCode.Failure);
 
 	const info = await getPackageInfo();
 	if (info == null) {
